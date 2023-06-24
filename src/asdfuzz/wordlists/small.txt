@@ -1,0 +1,25 @@
+
+<original><hex00>
+<original>\
+<original>`
+<original>'
+<original>"
+<original>‘
+<original>“
+<original>{
+<original>}
+<original>(
+<original>)
+<original><
+<original>>
+<original>--
+<original>/*
+nan
+inf
+1e500
+null
+${7/0}
+{{7/0}}
+{% 7/0 %}
+<%= 7/0 %>
+../

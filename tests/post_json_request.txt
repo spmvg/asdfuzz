@@ -1,0 +1,13 @@
+POST http://127.0.0.1/v1/jsondata HTTP/1.1
+Host: 127.0.0.1
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Content-Type: application/json
+Content-Length: 82
+Connection: keep-alive
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: same-site
+
+{"k0": "v0", "k1": [{"k111": true, "k112": "v112"}, {"k121": "v121"}], "k2": "v2"}
+

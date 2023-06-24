@@ -1,0 +1,8 @@
+POST /a/b HTTP/1.1
+Host: 127.0.0.1
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 38
+Cookie: a_cookie=a_cookie_value; =; qqq=; ; _gat=1
+
+field1=value1&field2=&&=&field4=value4
+

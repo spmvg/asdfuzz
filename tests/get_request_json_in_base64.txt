@@ -1,0 +1,5 @@
+GET /a/b?json_in_base64_url=eyIxIjogMn0 HTTP/1.1
+Host: 127.0.0.1
+Connection: close
+Cookie: json_in_base64_cookie=eyIxIjogMn0
+

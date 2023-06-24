@@ -1,0 +1,3 @@
+include src/asdfuzz/wordlists/default.txt
+include src/asdfuzz/wordlists/small.txt
+exclude tests/*
