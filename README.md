@@ -66,7 +66,7 @@ Releases are made available on PyPi.
 The recommended installation method is via `pip`:
 
 ```text
-pip install asdfuzz
+python -m pip install asdfuzz
 ```
 
 For a development setup, the requirements are in `dev-requirements.txt`.
