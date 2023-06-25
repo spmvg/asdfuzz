@@ -15,7 +15,7 @@ The performed requests and received responses are stored by default in a folder 
 To skip a section while the fuzzer is already running, press `[control]`+`[spacebar]`.
 
 Individual fields in JSON data will be fuzzed recursively.
-If base64-urlencoded JSON is present in parameters or cookies, this data will be fuzzed recursively as well.
+If base64-urlencoded JSON data is present in parameters or cookies, this data will be fuzzed recursively as well.
 
 ## Usage
 ```text

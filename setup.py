@@ -1,3 +1,5 @@
 import setuptools
 
-setuptools.setup()
+setuptools.setup(
+    package_data={'asdfuzz.wordlists': ['*.txt']},
+)
