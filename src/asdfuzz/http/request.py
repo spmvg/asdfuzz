@@ -1,3 +1,4 @@
+import json
 import logging
 import re
 from dataclasses import dataclass
@@ -5,11 +6,11 @@ from typing import List, Union
 
 import typer
 
+from asdfuzz._utils import _NEWLINE, _pre_post, _EQUALS, _COOKIE_SEPARATOR, _AND, _get_header, _get_data
 from asdfuzz.http.cookie import Cookie
 from asdfuzz.http.form_data import FormData
-from asdfuzz.http.url import URL
 from asdfuzz.http.json_data import JSONData
-from asdfuzz._utils import _NEWLINE, _pre_post, _EQUALS, _COOKIE_SEPARATOR, _AND, _get_header, _get_data
+from asdfuzz.http.url import URL
 
 logger = logging.getLogger(__name__)
 
@@ -119,6 +120,39 @@ class Request:
                         port=port
                     ))
         return requests
+
+    @classmethod
+    def from_fetch_nodejs(cls, filename, port) -> 'Request':
+        """
+        Extracts a HTTP request from a file containing the content of "Copy as fetch (Node.js)" from the Network tab
+        of Chrome DevTools.
+        "Copy as fetch (Node.js)" is a low-effort way to copy a request from Chrome, since Chrome does not directly
+        support extracting a raw HTTP request.
+        Make sure that the "Copy as fetch (Node.js)" option is used, not the "Copy as fetch" option.
+        """
+        regex = re.compile(r'fetch\((.*)\);', re.DOTALL)
+        with open(filename, 'r') as f:
+            content = f.read()
+
+        match = re.match(
+            regex,
+            content,
+        )
+        if not match:
+            raise ValueError(f'No fetch content found in file {filename}')
+        fetch_output = match.group(1)
+        url, dictionary = json.loads('[' + fetch_output + ']')
+
+        method = dictionary['method']
+        headers = dictionary.get('headers', {})
+        body = dictionary.get('body')
+
+        raw_request = method.encode() + b' ' + url.encode() + b' HTTP/1.1'
+        for key, value in headers.items():
+            raw_request += _NEWLINE + key.encode() + b': ' + value.encode()  # no quote needed
+        if body is not None:
+            raw_request += 2 * _NEWLINE + body.encode()
+        return Request(raw_request + 2 * _NEWLINE, port=port)
 
     @property
     def host(self) -> str:

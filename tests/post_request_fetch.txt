@@ -1,0 +1,7 @@
+fetch("https://example.com/dir/file.json", {
+  "headers": {
+    "header_key": "header value"
+  },
+  "body": "body_value",
+  "method": "POST"
+});

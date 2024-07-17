@@ -11,20 +11,25 @@ class TestResponse(unittest.TestCase):
             Path(__file__).parent,
             'get_request_with_fragment.txt'
         )
-
         self.post_request_file = os.path.join(
             Path(__file__).parent,
             'post_request_weird_post_data.txt'
         )
-
         self.post_request_json_file = os.path.join(
             Path(__file__).parent,
             'post_json_request.txt'
         )
-
         self.get_request_file_json_in_base64 = os.path.join(
             Path(__file__).parent,
             'get_request_json_in_base64.txt'
+        )
+        self.get_request_fetch_file = os.path.join(
+            Path(__file__).parent,
+            'get_request_fetch.txt'
+        )
+        self.post_request_fetch_file = os.path.join(
+            Path(__file__).parent,
+            'post_request_fetch.txt'
         )
 
     def test_get_recreate(self):
@@ -103,5 +108,25 @@ class TestResponse(unittest.TestCase):
 
         self.assertEqual(
             expected_result,
+            request.recreate()
+        )
+
+    def test_get_fetch(self):
+        request = Request.from_fetch_nodejs(self.get_request_fetch_file, 1234)
+        self.assertEqual(
+            b'GET https://example.com/dir/file.json HTTP/1.1\r\n'
+            b'header_key: header value\r\n'
+            b'\r\n',
+            request.recreate()
+        )
+
+    def test_post_fetch(self):
+        request = Request.from_fetch_nodejs(self.post_request_fetch_file, 1234)
+        self.assertEqual(
+            b'POST https://example.com/dir/file.json HTTP/1.1\r\n'
+            b'header_key: header value\r\n'
+            b'\r\n'
+            b'body_value\r\n'
+            b'\r\n',
             request.recreate()
         )
