@@ -1,0 +1,8 @@
+fetch("https://example.com/dir/file.json", {
+  "headers": {
+    "header_key": "header value"
+  },
+  "body": null,
+  "method": "GET",
+  "unexpected_field": "unexpected_value"
+});

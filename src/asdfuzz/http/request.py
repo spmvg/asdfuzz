@@ -30,6 +30,14 @@ _json_data_content_types = {
 _content_length_regex = _NEWLINE + rb'Content-Length: (\d+)' + _NEWLINE
 
 
+class UnexpectedKeysError(ValueError):
+    pass
+
+
+class NoContentError(ValueError):
+    pass
+
+
 @dataclass
 class Request:
     """
@@ -139,13 +147,21 @@ class Request:
             content,
         )
         if not match:
-            raise ValueError(f'No fetch content found in file {filename}')
+            raise NoContentError(f'No fetch content found in file {filename}')
         fetch_output = match.group(1)
         url, dictionary = json.loads('[' + fetch_output + ']')
 
-        method = dictionary['method']
-        headers = dictionary.get('headers', {})
-        body = dictionary.get('body')
+        method_key, headers_key, body_key = 'method', 'headers', 'body'
+        unexpected_keys = dictionary.keys() - {method_key, headers_key, body_key}
+        if unexpected_keys:
+            raise UnexpectedKeysError(
+                f'Unexpected keys in fetch input: {unexpected_keys}. '
+                f'Was the wrong copy option in DevTools used?"'
+            )
+
+        method = dictionary[method_key]
+        headers = dictionary.get(headers_key, {})
+        body = dictionary.get(body_key)
 
         raw_request = method.encode() + b' ' + url.encode() + b' HTTP/1.1'
         for key, value in headers.items():

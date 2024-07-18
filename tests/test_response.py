@@ -2,7 +2,7 @@ import os
 import unittest
 from pathlib import Path
 
-from asdfuzz.http.request import Request
+from asdfuzz.http.request import Request, NoContentError, UnexpectedKeysError
 
 
 class TestResponse(unittest.TestCase):
@@ -26,6 +26,14 @@ class TestResponse(unittest.TestCase):
         self.get_request_fetch_file = os.path.join(
             Path(__file__).parent,
             'get_request_fetch.txt'
+        )
+        self.get_request_fetch_file_no_content = os.path.join(
+            Path(__file__).parent,
+            'get_request_fetch_no_content.txt'
+        )
+        self.get_request_fetch_file_unexpected_field = os.path.join(
+            Path(__file__).parent,
+            'get_request_fetch_unexpected_field.txt'
         )
         self.post_request_fetch_file = os.path.join(
             Path(__file__).parent,
@@ -119,6 +127,14 @@ class TestResponse(unittest.TestCase):
             b'\r\n',
             request.recreate()
         )
+
+    def test_get_fetch_no_content(self):
+        with self.assertRaises(NoContentError):
+            Request.from_fetch_nodejs(self.get_request_fetch_file_no_content, 1234)
+
+    def test_get_fetch_unexpected_field(self):
+        with self.assertRaises(UnexpectedKeysError):
+            Request.from_fetch_nodejs(self.get_request_fetch_file_unexpected_field, 1234)
 
     def test_post_fetch(self):
         request = Request.from_fetch_nodejs(self.post_request_fetch_file, 1234)
