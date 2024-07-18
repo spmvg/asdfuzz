@@ -179,7 +179,7 @@ def main(
         requests = Request.from_zap_message_export(zap_export, port)
     if fetch_nodejs:
         logger.debug('Loading requests from Node.js fetch')
-        requests = Request.from_fetch_nodejs(fetch_nodejs, port)
+        requests = [Request.from_fetch_nodejs(fetch_nodejs, port)]
 
     if not https:
         for request in requests:
