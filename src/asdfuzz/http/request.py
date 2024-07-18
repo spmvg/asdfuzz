@@ -3,6 +3,7 @@ import logging
 import re
 from dataclasses import dataclass
 from typing import List, Union
+from urllib.parse import urlparse
 
 import typer
 
@@ -163,7 +164,9 @@ class Request:
         headers = dictionary.get(headers_key, {})
         body = dictionary.get(body_key)
 
-        raw_request = method.encode() + b' ' + url.encode() + b' HTTP/1.1'
+        hostname = urlparse(url).hostname.encode()
+
+        raw_request = method.encode() + b' ' + url.encode() + b' HTTP/1.1' + _NEWLINE + b'Host: ' + hostname
         for key, value in headers.items():
             raw_request += _NEWLINE + key.encode() + b': ' + value.encode()  # no quote needed
         if body is not None:

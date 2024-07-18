@@ -59,6 +59,7 @@ class EndToEndTest(unittest.TestCase):
         main(
             filename=input_file,  # have to give all options because we don't have typer handling the typer.Option
             zap_export=None,
+            fetch_nodejs=None,
             wordlist_file=None,
             port=443,
             https=True,
