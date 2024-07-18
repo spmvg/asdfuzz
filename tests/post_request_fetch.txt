@@ -1,4 +1,4 @@
-fetch("https://example.com/dir/file.json", {
+fetch("http://127.0.0.1/dir/file.json", {
   "headers": {
     "header_key": "header value"
   },

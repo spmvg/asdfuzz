@@ -122,7 +122,7 @@ class TestResponse(unittest.TestCase):
     def test_get_fetch(self):
         request = Request.from_fetch_nodejs(self.get_request_fetch_file, 1234)
         self.assertEqual(
-            b'GET https://example.com/dir/file.json HTTP/1.1\r\n'
+            b'GET http://127.0.0.1/dir/file.json HTTP/1.1\r\n'
             b'header_key: header value\r\n'
             b'\r\n',
             request.recreate()
@@ -139,7 +139,7 @@ class TestResponse(unittest.TestCase):
     def test_post_fetch(self):
         request = Request.from_fetch_nodejs(self.post_request_fetch_file, 1234)
         self.assertEqual(
-            b'POST https://example.com/dir/file.json HTTP/1.1\r\n'
+            b'POST http://127.0.0.1/dir/file.json HTTP/1.1\r\n'
             b'header_key: header value\r\n'
             b'\r\n'
             b'body_value\r\n'
