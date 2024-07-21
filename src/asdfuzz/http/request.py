@@ -31,8 +31,8 @@ _json_data_content_types = {
     b'application/json',
     b'application/json;charset=utf-8',
 }
-_content_length_regex = _NEWLINE + rb'content-length: (\d+)' + _NEWLINE
-_host_regex = _NEWLINE + b'host: ([^' + _NEWLINE + b']+)'
+_content_length_regex = rb'\r\ncontent-length: (\d+)\r\n'
+_host_regex = rb'\r\nhost: (.*)\r\n'
 
 
 class UnexpectedKeysError(ValueError):
@@ -259,6 +259,7 @@ class Request:
                 node.fuzz = False
 
     def _recreate_list(self) -> List[Union[str, bytes]]:
+        # TODO: make this function readable
         parts = []
 
         header_lines = [line.decode() for line in self.header.splitlines()]
@@ -326,7 +327,7 @@ class Request:
             _content_length_regex.decode(),
             _NEWLINE.decode() + rf'content-length: {content_length}' + _NEWLINE.decode(),
             parts[0],
-            re.MULTILINE | re.IGNORECASE
+            flags=re.MULTILINE | re.IGNORECASE
         )
 
     @staticmethod
