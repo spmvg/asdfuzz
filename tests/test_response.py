@@ -2,7 +2,7 @@ import os
 import unittest
 from pathlib import Path
 
-from asdfuzz.http.request import Request, NoContentError, UnexpectedKeysError
+from asdfuzz.http.request import Request, NoContentError
 
 
 class TestResponse(unittest.TestCase):
@@ -154,10 +154,6 @@ cookie: json_in_base64_cookie=eyIxIjogM30
     def test_get_fetch_no_content(self):
         with self.assertRaises(NoContentError):
             Request.from_fetch_nodejs(self.get_request_fetch_file_no_content, 1234)
-
-    def test_get_fetch_unexpected_field(self):
-        with self.assertRaises(UnexpectedKeysError):
-            Request.from_fetch_nodejs(self.get_request_fetch_file_unexpected_field, 1234)
 
     def test_post_fetch(self):
         request = Request.from_fetch_nodejs(self.post_request_fetch_file, 1234)

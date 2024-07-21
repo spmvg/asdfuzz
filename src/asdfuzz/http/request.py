@@ -35,10 +35,6 @@ _content_length_regex = rb'\r\ncontent-length: ([^\r]+)'
 _host_regex = rb'\r\nhost: ([^\r]+)'
 
 
-class UnexpectedKeysError(ValueError):
-    pass
-
-
 class NoContentError(ValueError):
     pass
 
