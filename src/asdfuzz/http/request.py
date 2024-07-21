@@ -24,12 +24,15 @@ _method_colors = {  # same as swagger colors
 _space = b' '
 _cookie_header = b'cookie: '
 _cookie_regex = br'\A' + _cookie_header
+_content_type_header = b'content-type: '
+_content_type_regex = br'\A' + _content_type_header
 _form_data_content_type = b'application/x-www-form-urlencoded'
 _json_data_content_types = {
     b'application/json',
     b'application/json;charset=utf-8',
 }
 _content_length_regex = _NEWLINE + rb'content-length: (\d+)' + _NEWLINE
+_host_regex = _NEWLINE + b'host: ([^' + _NEWLINE + b']+)'
 
 
 class UnexpectedKeysError(ValueError):
@@ -168,14 +171,13 @@ class Request:
         }
         body = dictionary.get(body_key)
 
-        hostname = urlparse(url).hostname.encode()
-
         # configure forbidden header names, not set by NodeJS fetch
         headers['connection'] = 'close'
+        headers['host'] = urlparse(url).hostname
         if body is not None:
             headers['content-length'] = str(len(body))
 
-        raw_request = method.encode() + b' ' + url.encode() + b' HTTP/1.1' + _NEWLINE + b'Host: ' + hostname
+        raw_request = method.encode() + b' ' + url.encode() + b' HTTP/1.1'
         for key, value in headers.items():
             raw_request += _NEWLINE + key.encode() + b': ' + value.encode()  # no quote needed
         if body is not None:
@@ -185,7 +187,8 @@ class Request:
     @property
     def host(self) -> str:
         """ The host as indicated in the URL. """
-        return self.request.splitlines()[1][6:].decode()
+        match = re.search(_host_regex, self.header, re.MULTILINE | re.IGNORECASE)
+        return match.group(1)  # host is a required header
 
     @property
     def colored_method(self):
@@ -198,11 +201,10 @@ class Request:
     @property
     def content_type(self):
         """ Content type of the request, as indicated in the ``Content-type`` header. """
-        content_type_indicator = b'Content-Type: '
         for line in self.header.splitlines():
-            if not line.startswith(content_type_indicator):
+            if not re.match(_content_type_regex, line, re.IGNORECASE):
                 continue
-            return line[len(content_type_indicator):]
+            return line[len(_content_type_header):]
         return
 
     def _cookies(self):
