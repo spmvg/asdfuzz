@@ -55,10 +55,10 @@ class TestResponse(unittest.TestCase):
             b"""POST /a/b HTTP/1.1
 Host: 127.0.0.1
 Content-Type: application/x-www-form-urlencoded
-content-length: 38
+content-length: 44
 cookie: a_cookie=a_cookie_value; =; qqq=; ; _gat=1
 
-field1=value1&field2=&&=&field4=value4
+field1=value1%5B%5D&field2=&&=&field4=value4
 
 """.replace(b'\n', b'\r\n'),
             request.recreate()

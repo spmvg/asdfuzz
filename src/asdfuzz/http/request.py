@@ -3,7 +3,7 @@ import logging
 import re
 from dataclasses import dataclass
 from typing import List, Union, Optional
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote_plus, quote_plus
 
 import typer
 
@@ -232,7 +232,7 @@ class Request:
         ):
             return
         return [
-            FormData(key, value) for key, value in [
+            FormData(key, unquote_plus(value.decode()).encode() if value is not None else None) for key, value in [
                 _pre_post(key_value, _EQUALS)
                 for key_value in self.data.splitlines()[0].split(_AND)
             ]
@@ -272,6 +272,8 @@ class Request:
         )
         for line_index in range(len(header_lines)):
             line = header_lines[line_index]
+
+            # replace cookies in place
             if not re.match(_cookie_regex.decode(), line, re.IGNORECASE):
                 continue
             header_lines[line_index] = (
@@ -300,7 +302,7 @@ class Request:
                 else (
                     (form_data.key + _EQUALS).decode()
                     + typer.style(
-                        form_data.value.decode(),
+                        quote_plus(form_data.value),
                         bg=typer.colors.RED
                     )
                 )
