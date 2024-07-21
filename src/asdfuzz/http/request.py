@@ -157,12 +157,11 @@ class Request:
         url, dictionary = json.loads('[' + fetch_output + ']')
 
         method_key, headers_key, body_key = 'method', 'headers', 'body'
-        unexpected_keys = dictionary.keys() - {method_key, headers_key, body_key}
-        if unexpected_keys:
-            raise UnexpectedKeysError(
-                f'Unexpected keys in fetch input: {unexpected_keys}. '
-                f'Was the wrong copy option in DevTools used?"'
-            )
+        unsupported_keys = dictionary.keys() - {method_key, headers_key, body_key}
+        logger.debug(
+            f'Unsupported keys in fetch input: {unsupported_keys}. '
+            f'These keys will be ignored.'
+        )
 
         method = dictionary[method_key]
         headers = {
