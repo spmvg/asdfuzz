@@ -31,8 +31,8 @@ _json_data_content_types = {
     b'application/json',
     b'application/json;charset=utf-8',
 }
-_content_length_regex = rb'\r\ncontent-length: (\d+)\r\n'
-_host_regex = rb'\r\nhost: (.*)\r\n'
+_content_length_regex = rb'\r\ncontent-length: ([^\r]+)'
+_host_regex = rb'\r\nhost: ([^\r]+)'
 
 
 class UnexpectedKeysError(ValueError):
@@ -327,7 +327,7 @@ class Request:
         content_length = len(self._unstyle_encode(data))
         parts[0] = re.sub(
             _content_length_regex.decode(),
-            _NEWLINE.decode() + rf'content-length: {content_length}' + _NEWLINE.decode(),
+            _NEWLINE.decode() + rf'content-length: {content_length}',
             parts[0],
             flags=re.MULTILINE | re.IGNORECASE
         )
