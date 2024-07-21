@@ -51,7 +51,7 @@ class EndToEndTest(unittest.TestCase):
         ssock = MagicMock()
         ssock.sendall = MagicMock()
         ssock.recv.side_effect = [
-            b'HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n',
+            b'HTTP/1.1 200 OK\r\ncontent-length: 0\r\n\r\n',
             b''
         ] * 10000
         create_default_context.return_value.wrap_socket.return_value.__enter__.return_value = ssock
