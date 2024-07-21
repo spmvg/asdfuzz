@@ -186,13 +186,13 @@ class Fuzzer:
     ) -> Optional[Response]:
         # TODO: allow connection to stay open to reduce server overhead and stay true to the original request
         request_copy.header = re.sub(
-            br'Connection: Keep-Alive' + _NEWLINE,
-            br'Connection: Close' + _NEWLINE,
+            br'connection: keep-alive' + _NEWLINE,
+            br'connection: close' + _NEWLINE,
             request_copy.header,
             flags=re.MULTILINE | re.IGNORECASE
         )
         request_copy.header = re.sub(
-            br'Keep-Alive: .*?' + _NEWLINE,
+            br'keep-alive: .*?' + _NEWLINE,
             b'',
             request_copy.header,
             flags=re.MULTILINE | re.IGNORECASE

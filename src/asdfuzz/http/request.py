@@ -2,7 +2,7 @@ import json
 import logging
 import re
 from dataclasses import dataclass
-from typing import List, Union
+from typing import List, Union, Optional
 from urllib.parse import urlparse
 
 import typer
@@ -22,13 +22,14 @@ _method_colors = {  # same as swagger colors
     'DELETE': typer.colors.RED,
 }
 _space = b' '
-_cookie_line_indicator = b'Cookie: '
+_cookie_header = b'cookie: '
+_cookie_regex = br'\A' + _cookie_header
 _form_data_content_type = b'application/x-www-form-urlencoded'
 _json_data_content_types = {
     b'application/json',
     b'application/json;charset=utf-8',
 }
-_content_length_regex = _NEWLINE + rb'Content-Length: (\d+)' + _NEWLINE
+_content_length_regex = _NEWLINE + rb'content-length: (\d+)' + _NEWLINE
 
 
 class UnexpectedKeysError(ValueError):
@@ -80,7 +81,7 @@ class Request:
         header_part = request[:header_end]
 
         content_length = 0
-        content_length_match = re.search(_content_length_regex, header_part, re.MULTILINE)
+        content_length_match = re.search(_content_length_regex, header_part, re.MULTILINE | re.IGNORECASE)
         if content_length_match:
             content_length = int(content_length_match.group(1))
 
@@ -161,15 +162,18 @@ class Request:
             )
 
         method = dictionary[method_key]
-        headers = dictionary.get(headers_key, {})
+        headers = {
+            key.lower(): value
+            for key, value in dictionary.get(headers_key, {}).items()
+        }
         body = dictionary.get(body_key)
 
         hostname = urlparse(url).hostname.encode()
 
         # configure forbidden header names, not set by NodeJS fetch
-        headers['Connection'] = 'close'
+        headers['connection'] = 'close'
         if body is not None:
-            headers['Content-Length'] = str(len(body))
+            headers['content-length'] = str(len(body))
 
         raw_request = method.encode() + b' ' + url.encode() + b' HTTP/1.1' + _NEWLINE + b'Host: ' + hostname
         for key, value in headers.items():
@@ -205,7 +209,7 @@ class Request:
         header_lines = self.header.splitlines()
         cookie_line = None
         for line in header_lines:
-            if line.startswith(_cookie_line_indicator):
+            if re.match(_cookie_regex, line, re.IGNORECASE):
                 cookie_line = line
                 break
         if not cookie_line:
@@ -214,7 +218,7 @@ class Request:
         return [
             Cookie(key, value) for key, value in [
                 _pre_post(key_value, _EQUALS)
-                for key_value in cookie_line[len(_cookie_line_indicator):].split(_COOKIE_SEPARATOR)
+                for key_value in cookie_line[len(_cookie_header):].split(_COOKIE_SEPARATOR)
             ]
         ]
 
@@ -265,10 +269,10 @@ class Request:
         )
         for line_index in range(len(header_lines)):
             line = header_lines[line_index]
-            if not line.startswith(_cookie_line_indicator.decode()):
+            if not re.match(_cookie_regex.decode(), line, re.IGNORECASE):
                 continue
             header_lines[line_index] = (
-                _cookie_line_indicator.decode()
+                _cookie_header.decode()
                 + _COOKIE_SEPARATOR.decode().join(
                     cookie.key.decode() if cookie.value is None  # result of _pre_post if there is no equals sign at all
                     else (
@@ -318,9 +322,9 @@ class Request:
         content_length = len(self._unstyle_encode(data))
         parts[0] = re.sub(
             _content_length_regex.decode(),
-            _NEWLINE.decode() + rf'Content-Length: {content_length}' + _NEWLINE.decode(),
+            _NEWLINE.decode() + rf'content-length: {content_length}' + _NEWLINE.decode(),
             parts[0],
-            re.MULTILINE
+            re.MULTILINE | re.IGNORECASE
         )
 
     @staticmethod
