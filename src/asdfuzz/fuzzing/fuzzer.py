@@ -141,10 +141,9 @@ class Fuzzer:
                 if self.skip_current_shared.value == SKIP_CURRENT_SECTION:
                     self.skip_current_shared.value = DO_NOT_SKIP
                     break
-                encoded_fuzz_string = quote_plus(fuzz_string).encode()
                 request_copy.url.parameters[parameter_index] = Parameter(
                     key=request_copy.url.parameters[parameter_index].key,
-                    value=encoded_fuzz_string
+                    value=fuzz_string.encode()
                 )
                 response = self._perform_and_print_request(unreplaced_fuzz_string, request_copy, rownum)
                 self._write_request_response(
