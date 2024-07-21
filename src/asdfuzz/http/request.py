@@ -166,6 +166,11 @@ class Request:
 
         hostname = urlparse(url).hostname.encode()
 
+        # configure forbidden header names, not set by NodeJS fetch
+        headers['Connection'] = 'close'
+        if body is not None:
+            headers['Content-Length'] = str(len(body))
+
         raw_request = method.encode() + b' ' + url.encode() + b' HTTP/1.1' + _NEWLINE + b'Host: ' + hostname
         for key, value in headers.items():
             raw_request += _NEWLINE + key.encode() + b': ' + value.encode()  # no quote needed
@@ -263,8 +268,8 @@ class Request:
             if not line.startswith(_cookie_line_indicator.decode()):
                 continue
             header_lines[line_index] = (
-                    _cookie_line_indicator.decode()
-                    + _COOKIE_SEPARATOR.decode().join(
+                _cookie_line_indicator.decode()
+                + _COOKIE_SEPARATOR.decode().join(
                     cookie.key.decode() if cookie.value is None  # result of _pre_post if there is no equals sign at all
                     else (
                         (cookie.key + _EQUALS).decode()
