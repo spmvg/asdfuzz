@@ -1,0 +1,4 @@
+GET /a_dir/another_dir?a_key=a_value%5B%5D HTTP/1.1
+Host: 127.0.0.1
+Connection: close
+

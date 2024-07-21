@@ -12,7 +12,12 @@ from get_request_json_in_base64_call_args import get_request_json_in_base64_call
 from post_json_request_call_args import post_json_request_call_args
 from post_request_weird_post_data_call_args import post_request_weird_post_data_call_args
 from get_request_with_fragment_call_args import get_request_with_fragment_call_args
+from tests.get_request_with_urlencoded_in_parameters_call_args import \
+    get_request_with_urlencoded_in_parameters_call_args
 
+
+# TODO: this script should not be using unittest but a proper end to end test framework like robotframework, but this
+#       does the job for now.
 
 class EndToEndTest(unittest.TestCase):
     @parameterized.expand([
@@ -43,6 +48,13 @@ class EndToEndTest(unittest.TestCase):
                 'get_request_with_fragment.txt'
             ),
             get_request_with_fragment_call_args
+        ),
+        (
+            os.path.join(
+                Path(__file__).parent,
+                'get_request_with_urlencoded_in_parameters.txt'
+            ),
+            get_request_with_urlencoded_in_parameters_call_args
         ),
     ])
     @patch('ssl.create_default_context')
