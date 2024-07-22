@@ -4,7 +4,7 @@ Web application fuzzer that automatically detects and fuzzes the following data 
 * URL parameters,
 * cookies,
 * form data,
-* or JSON data.
+* and JSON data.
 
 ## Quickstart
 Install the `asdfuzz` package using `pip` (see below).
