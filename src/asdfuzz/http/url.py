@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Optional
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote_plus, quote_plus
 
 import typer
 
@@ -36,7 +36,7 @@ class URL:
         pre_question_mark, post_question_mark = _pre_post(pre_fragment, self.question)
 
         self.parameters: List[Parameter] = [
-            Parameter(key, value) for key, value in [
+            Parameter(key, unquote_plus(value.decode()).encode() if value is not None else None) for key, value in [
                 _pre_post(key_value, _EQUALS) for key_value in post_question_mark.split(_AND)
             ]
         ] if post_question_mark is not None else None
@@ -69,10 +69,10 @@ class URL:
             colored_url += self.question.decode() + _AND.decode().join(
                 parameter.key.decode() if parameter.value is None  # result of _pre_post if there is no equals sign at all
                 else (
-                        parameter.key.decode()
-                        + _EQUALS.decode()
-                        + typer.style(
-                        parameter.value.decode(),
+                    parameter.key.decode()
+                    + _EQUALS.decode()
+                    + typer.style(
+                        quote_plus(parameter.value),
                         bg=typer.colors.GREEN if parameter.fuzz else None
                     )
                 )

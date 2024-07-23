@@ -141,10 +141,9 @@ class Fuzzer:
                 if self.skip_current_shared.value == SKIP_CURRENT_SECTION:
                     self.skip_current_shared.value = DO_NOT_SKIP
                     break
-                encoded_fuzz_string = quote_plus(fuzz_string).encode()
                 request_copy.url.parameters[parameter_index] = Parameter(
                     key=request_copy.url.parameters[parameter_index].key,
-                    value=encoded_fuzz_string
+                    value=fuzz_string.encode()
                 )
                 response = self._perform_and_print_request(unreplaced_fuzz_string, request_copy, rownum)
                 self._write_request_response(
@@ -186,13 +185,13 @@ class Fuzzer:
     ) -> Optional[Response]:
         # TODO: allow connection to stay open to reduce server overhead and stay true to the original request
         request_copy.header = re.sub(
-            br'Connection: Keep-Alive' + _NEWLINE,
-            br'Connection: Close' + _NEWLINE,
+            br'connection: keep-alive' + _NEWLINE,
+            br'connection: close' + _NEWLINE,
             request_copy.header,
             flags=re.MULTILINE | re.IGNORECASE
         )
         request_copy.header = re.sub(
-            br'Keep-Alive: .*?' + _NEWLINE,
+            br'keep-alive: .*?' + _NEWLINE,
             b'',
             request_copy.header,
             flags=re.MULTILINE | re.IGNORECASE
@@ -296,10 +295,9 @@ class Fuzzer:
                 if self.skip_current_shared.value == SKIP_CURRENT_SECTION:
                     self.skip_current_shared.value = DO_NOT_SKIP
                     break
-                encoded_fuzz_string = quote_plus(fuzz_string).encode()
                 request_copy.form_data[form_data_index] = FormData(
                     key=request_copy.form_data[form_data_index].key,
-                    value=encoded_fuzz_string
+                    value=fuzz_string.encode()
                 )
                 response = self._perform_and_print_request(unreplaced_fuzz_string, request_copy, rownum)
                 self._write_request_response(

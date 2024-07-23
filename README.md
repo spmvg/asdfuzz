@@ -1,15 +1,32 @@
 # `asdfuzz`
 Web application fuzzer that automatically detects and fuzzes the following data in HTTP requests:
-* URL directories
-* URL parameters
-* Cookies
-* Form data
-* JSON data
+* URL directories,
+* URL parameters,
+* cookies,
+* form data,
+* and JSON data.
+
+## Quickstart
+Install the `asdfuzz` package using `pip` (see below).
+
+The easiest way to get started is to copy a request from the Network tab of Chrome DevTools.
+Select the option _"Copy as fetch (Node.js)"_ and save the content to a file, such as: `example.txt`.
+
+Run `asdfuzz` with the following command:
+
+```commandline
+python -m asdfuzz --fetch-nodejs example.txt
+```
 
 ## Example
 ![Example usage](docs/example_usage.png)
 
-The starting point of fuzzing can be a raw HTTP request or OWASP ZAP message export.
+The fuzzing starting point can be:
+
+* a raw HTTP request,
+* an OWASP ZAP message export,
+* or the content of _"Copy as fetch (Node.js)"_ from the Network tab of Chrome DevTools.
+
 Every individual field will be fuzzed in a separate section and the results are shown on screen.
 The performed requests and received responses are stored by default in a folder called `asdfuzz_output/` for later reference.
 To skip a section while the fuzzer is already running, press `[control]`+`[spacebar]`.
@@ -22,16 +39,20 @@ If base64-urlencoded JSON data is present in parameters or cookies, this data wi
 Usage: python -m asdfuzz [OPTIONS]
 
 Options:
-  --filename PATH                 File containing a single HTTP request to
-                                  fuzz.
+  --filename PATH                 File containing a single HTTP request to 
+                                  fuzz in raw HTTP format. [default: None]
   --zap-export PATH               File containing one or multiple HTTP
                                   requests to fuzz in OWASP ZAP message export
-                                  format.
+                                  format. [default: None]
+  --fetch-nodejs PATH             File containing a single HTTP request to 
+                                  fuzz in "Copy as fetch (Node.js)" format
+                                  from Chrome DevTools. [default: None]
   --wordlist-file PATH            File containing the wordlist used for
                                   fuzzing. A default wordlist is used if this
                                   parameter is empty. In the wordlist, use
                                   template <original> to refer dynamically to
                                   the value in the original request.
+                                  [default: None]
   --port INTEGER                  Port used for the connection.  [default:
                                   443]
   --https / --no-https            Use HTTPS.  [default: https]

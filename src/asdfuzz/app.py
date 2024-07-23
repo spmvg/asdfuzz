@@ -104,10 +104,16 @@ def _bool_as_str(boolean):
 
 def main(
         filename: Optional[Path] = typer.Option(
-            None, help='File containing a single HTTP request to fuzz.',
+            None, help='File containing a single HTTP request to fuzz in raw HTTP format.',
         ),
         zap_export: Optional[Path] = typer.Option(
             None, help='File containing one or multiple HTTP requests to fuzz in OWASP ZAP message export format.'
+        ),
+        fetch_nodejs: Optional[Path] = typer.Option(
+            None, help=(
+                'File containing a single HTTP request to fuzz in "Copy as fetch (Node.js)" format from Chrome '
+                'DevTools.'
+            )
         ),
         wordlist_file: Optional[Path] = typer.Option(
             None, help=(
@@ -158,8 +164,8 @@ def main(
     )
     logger = logging.getLogger(__name__)
 
-    if not filename and not zap_export:
-        _raise('Either --filename or --zap-export should be given.')
+    if not filename and not zap_export and not fetch_nodejs:
+        _raise('Either --filename, --zap-export or --fetch-nodejs should be given.')
 
     if not wordlist_file:
         wordlist_file = DEFAULT_FUZZ_FILE
@@ -171,6 +177,9 @@ def main(
     if zap_export:
         logger.debug('Loading requests from ZAP message export')
         requests = Request.from_zap_message_export(zap_export, port)
+    if fetch_nodejs:
+        logger.debug('Loading requests from Node.js fetch')
+        requests = [Request.from_fetch_nodejs(fetch_nodejs, port)]
 
     if not https:
         for request in requests:

@@ -12,7 +12,12 @@ from get_request_json_in_base64_call_args import get_request_json_in_base64_call
 from post_json_request_call_args import post_json_request_call_args
 from post_request_weird_post_data_call_args import post_request_weird_post_data_call_args
 from get_request_with_fragment_call_args import get_request_with_fragment_call_args
+from tests.get_request_with_urlencoded_in_parameters_call_args import \
+    get_request_with_urlencoded_in_parameters_call_args
 
+
+# TODO: this script should not be using unittest but a proper end to end test framework like robotframework, but this
+#       does the job for now.
 
 class EndToEndTest(unittest.TestCase):
     @parameterized.expand([
@@ -44,6 +49,13 @@ class EndToEndTest(unittest.TestCase):
             ),
             get_request_with_fragment_call_args
         ),
+        (
+            os.path.join(
+                Path(__file__).parent,
+                'get_request_with_urlencoded_in_parameters.txt'
+            ),
+            get_request_with_urlencoded_in_parameters_call_args
+        ),
     ])
     @patch('ssl.create_default_context')
     @patch('socket.create_connection')
@@ -51,7 +63,7 @@ class EndToEndTest(unittest.TestCase):
         ssock = MagicMock()
         ssock.sendall = MagicMock()
         ssock.recv.side_effect = [
-            b'HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n',
+            b'HTTP/1.1 200 OK\r\ncontent-length: 0\r\n\r\n',
             b''
         ] * 10000
         create_default_context.return_value.wrap_socket.return_value.__enter__.return_value = ssock
@@ -59,6 +71,7 @@ class EndToEndTest(unittest.TestCase):
         main(
             filename=input_file,  # have to give all options because we don't have typer handling the typer.Option
             zap_export=None,
+            fetch_nodejs=None,
             wordlist_file=None,
             port=443,
             https=True,
