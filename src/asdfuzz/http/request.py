@@ -127,7 +127,7 @@ class Request:
         with open(filename, 'rb') as f:
             with typer.progressbar(f.readlines()[1:]) as progress:
                 for line in progress:
-                    re_match = re.match(rb'^==== (\d+) ==========$', line)
+                    re_match = re.match(rb'^==== (\d+) ==========\r\n$', line)
                     if re_match:
                         logger.debug(f'Parsing message before ZAP message number {int(re_match.group(1))}')
 
@@ -135,7 +135,8 @@ class Request:
 
                         requests.append(Request(
                             request=request_without_response,
-                            port=port
+                            port=port,
+                            add_header=add_header,
                         ))
                         request = b''
                         continue

@@ -1,0 +1,19 @@
+==== 1 ==========
+POST /a_dir/another_dir HTTP/1.1
+Host: 127.0.0.1
+Connection: close
+Cookie: a_cookie=a_cookie_value
+Content-length: 4
+
+Data
+
+
+Response to be ignored
+
+==== 2 ==========
+GET /a_dir/another_dir?a_key=a_value&another_key=another_value HTTP/1.1
+Host: 127.0.0.1
+Connection: close
+Cookie: a_cookie=a_cookie_value
+
+Response to be ignored
