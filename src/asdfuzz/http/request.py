@@ -2,6 +2,7 @@ import json
 import logging
 import re
 from dataclasses import dataclass
+from pathlib import Path
 from typing import List, Union, Optional
 from urllib.parse import urlparse, unquote_plus, quote_plus
 
@@ -51,10 +52,14 @@ class Request:
     port: int
     """ The port to use for the request. """
     disable_https: bool = False
-    """ Whether to use HTTPS ``disable_https=False`` or HTTP ``disable_https=True`` """
+    """ Whether to use HTTPS ``disable_https=False`` or HTTP ``disable_https=True``. """
+    add_header: Optional[str] = None
+    """ Add an extra header to the request. """
 
     def __post_init__(self):
         self.header: bytes = _get_header(self.request)
+        if self.add_header:
+            self.header += _NEWLINE + self.add_header.encode()
         self.data: bytes = _get_data(self.request)
         self.method: str = self.request.splitlines()[0].split(_space)[0].decode()
         self.url: URL = URL(self.request.splitlines()[0].split(_space)[1])
@@ -63,7 +68,12 @@ class Request:
         self.json_data: Optional[JSONData] = self._json_data()
 
     @classmethod
-    def from_file(cls, filename, port) -> 'Request':
+    def from_file(
+            cls,
+            filename: Path,
+            port: int,
+            add_header: Optional[str] = None,
+    ) -> 'Request':
         """
         Extracts a ``Request`` object from a file containing a raw HTTP request, indicated by ``filename``.
         The file should not contain the response: only the request.
@@ -72,7 +82,11 @@ class Request:
             request = f.read()
             while request[-len(2 * _NEWLINE):] != 2 * _NEWLINE:
                 request += _NEWLINE
-        return Request(request, port)
+        return Request(
+            request=request,
+            port=port,
+            add_header=add_header,
+        )
 
     @staticmethod
     def _trim_response(request):
@@ -93,7 +107,12 @@ class Request:
         return request[:start_of_response]
 
     @classmethod
-    def from_zap_message_export(cls, filename, port) -> List['Request']:
+    def from_zap_message_export(
+            cls,
+            filename: Path,
+            port: int,
+            add_header: Optional[str] = None,
+    ) -> List['Request']:
         """
         Extracts HTTP requests from an OWASP ZAP message export.
         The ZAP message export can be downloaded by selecting messages in the history view and then selecting:
@@ -126,12 +145,18 @@ class Request:
                     request_without_response = cls._trim_response(request)
                     requests.append(Request(
                         request=request_without_response,
-                        port=port
+                        port=port,
+                        add_header=add_header,
                     ))
         return requests
 
     @classmethod
-    def from_fetch_nodejs(cls, filename, port) -> 'Request':
+    def from_fetch_nodejs(
+            cls,
+            filename: Path,
+            port: int,
+            add_header: Optional[str] = None,
+    ) -> 'Request':
         """
         Extracts a HTTP request from a file containing the content of "Copy as fetch (Node.js)" from the Network tab
         of Chrome DevTools.
@@ -177,7 +202,11 @@ class Request:
             raw_request += _NEWLINE + key.encode() + b': ' + value.encode()  # no quote needed
         if body is not None:
             raw_request += 2 * _NEWLINE + body.encode()
-        return Request(raw_request + 2 * _NEWLINE, port=port)
+        return Request(
+            request=raw_request + 2 * _NEWLINE,
+            port=port,
+            add_header=add_header,
+        )
 
     @property
     def host(self) -> str:

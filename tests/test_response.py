@@ -168,3 +168,22 @@ cookie: json_in_base64_cookie=eyIxIjogM30
             b'\r\n',
             request.recreate()
         )
+
+    def test_add_header(self):
+        request = Request.from_fetch_nodejs(
+            self.post_request_fetch_file,
+            port=1234,
+            add_header='add_header_key: add_header_value',
+        )
+        self.assertEqual(
+            b'POST http://127.0.0.1/dir/file.json HTTP/1.1\r\n'
+            b'header_key: header value\r\n'
+            b'connection: close\r\n'
+            b'host: 127.0.0.1\r\n'
+            b'content-length: 10\r\n'
+            b'add_header_key: add_header_value\r\n'
+            b'\r\n'
+            b'body_value\r\n'
+            b'\r\n',
+            request.recreate()
+        )
