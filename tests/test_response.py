@@ -39,6 +39,10 @@ class TestResponse(unittest.TestCase):
             Path(__file__).parent,
             'post_request_fetch.txt'
         )
+        self.zap_message_export_file = os.path.join(
+            Path(__file__).parent,
+            'zap_message_export.txt'
+        )
 
     def test_get_recreate(self):
         with open(self.get_request_file, 'rb') as f:
@@ -167,4 +171,55 @@ cookie: json_in_base64_cookie=eyIxIjogM30
             b'body_value\r\n'
             b'\r\n',
             request.recreate()
+        )
+
+    def test_add_header(self):
+        request = Request.from_fetch_nodejs(
+            self.post_request_fetch_file,
+            port=1234,
+            add_header='add_header_key: add_header_value',
+        )
+        self.assertEqual(
+            b'POST http://127.0.0.1/dir/file.json HTTP/1.1\r\n'
+            b'header_key: header value\r\n'
+            b'connection: close\r\n'
+            b'host: 127.0.0.1\r\n'
+            b'content-length: 10\r\n'
+            b'add_header_key: add_header_value\r\n'
+            b'\r\n'
+            b'body_value\r\n'
+            b'\r\n',
+            request.recreate()
+        )
+
+    def test_zap_message_export(self):
+        requests = Request.from_zap_message_export(
+            self.zap_message_export_file,
+            port=1234,
+            add_header='add_header_key: add_header_value'
+        )
+        self.assertEqual(
+            2,
+            len(requests)
+        )
+        self.assertEqual(
+            b"""POST /a_dir/another_dir HTTP/1.1
+Host: 127.0.0.1
+Connection: close
+cookie: a_cookie=a_cookie_value
+Content-length: 4
+add_header_key: add_header_value
+
+Data""".replace(b'\n', b'\r\n'),
+            requests[0].recreate()
+        )
+        self.assertEqual(
+            b"""GET /a_dir/another_dir?a_key=a_value&another_key=another_value HTTP/1.1
+Host: 127.0.0.1
+Connection: close
+cookie: a_cookie=a_cookie_value
+add_header_key: add_header_value
+
+""".replace(b'\n', b'\r\n'),
+            requests[1].recreate()
         )

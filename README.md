@@ -72,6 +72,8 @@ Options:
                                   [default: form-data]
   --json-data / --no-json-data    Fuzz the values of JSON data.  [default:
                                   json-data]
+  --add-header TEXT               Add an extra header to the request. For
+                                  example: "Header: Value". [default: None]
   --confirmation / --no-confirmation
                                   Enter the interactive menu.  [default:
                                   confirmation]

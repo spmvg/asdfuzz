@@ -148,6 +148,9 @@ def main(
         json_data: bool = typer.Option(
             True, help='Fuzz the values of JSON data.'
         ),
+        add_header: Optional[str] = typer.Option(
+            None, help='Add an extra header to the request. For example: "Header: Value".'
+        ),
         confirmation: bool = typer.Option(
             True, help='Enter the interactive menu.'
         ),
@@ -173,13 +176,13 @@ def main(
     requests = []
     if filename:
         logger.debug('Loading requests from file')
-        requests = [Request.from_file(filename, port)]
+        requests = [Request.from_file(filename, port, add_header)]
     if zap_export:
         logger.debug('Loading requests from ZAP message export')
-        requests = Request.from_zap_message_export(zap_export, port)
+        requests = Request.from_zap_message_export(zap_export, port, add_header)
     if fetch_nodejs:
         logger.debug('Loading requests from Node.js fetch')
-        requests = [Request.from_fetch_nodejs(fetch_nodejs, port)]
+        requests = [Request.from_fetch_nodejs(fetch_nodejs, port, add_header)]
 
     if not https:
         for request in requests:

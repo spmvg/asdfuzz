@@ -82,6 +82,7 @@ class EndToEndTest(unittest.TestCase):
             cookies=True,
             form_data=True,
             json_data=True,
+            add_header=None,
             confirmation=False,
             output_directory='asdfuzz_output',
             debug=False,
